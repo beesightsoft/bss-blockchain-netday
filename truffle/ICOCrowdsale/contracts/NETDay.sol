@@ -1,15 +1,22 @@
-pragma solidity 0.4.21;
+pragma solidity >=0.5.0 <0.7.0;
 
 /**
-Nhancv token contract
+ICO CrowdSale token contract
 
-Contract address: https://ropsten.etherscan.io/address/0x9291b8194962bdaff76521358274900ae0d0f2ae#code
-Token address   : https://ropsten.etherscan.io/token/0x9291b8194962bdaff76521358274900ae0d0f2ae
-Deployed at     : 0x9291b8194962bdaff76521358274900ae0d0f2ae
-Symbol          : NC
-Name            : Nhan Cao Token
-Total supply    : 1000000000
-Decimals        : 0
+Abstract
+Start date      : Tuesday, March 27, 2018 5:31:11 PM GMT+07:00
+Bonus end date  : Wednesday, March 27, 2019 5:31:11 PM GMT+07:00
+End date        : Thursday, March 26, 2020 5:31:11 PM GMT+07:00
+Normal price    : 100 NKEM Tokens per 1 ETH
+Bonus price     : 150 NKEM Tokens per 1 ETH
+
+Contract address: https://ropsten.etherscan.io/address/0xbb3c7bf0b58e23ea2ff9567fcc7ef8235cfe49b7
+Token address   : https://ropsten.etherscan.io/token/0xbb3c7bf0b58e23ea2ff9567fcc7ef8235cfe49b7
+First transfer  : https://ropsten.etherscan.io/tx/0xbd59b2562c589bb2a3736b590f9c046237134a167e495e52c3776429178c5908
+Deployed at     : 0xbb3c7bf0b58e23ea2ff9567fcc7ef8235cfe49b7
+Symbol          : NKEM
+Name            : NKem Token
+Decimals        : 18
 
 @ nhancv MIT license
  */
@@ -207,21 +214,43 @@ contract Token is ERC20Interface, Owned {
 
 }
 
-contract NC is Token {
+contract NETDay is Token {
 
-  function NC() public {
-    name = "Nhan Cao Token";
-    symbol = "NC";
-    decimals = 0;
-    totalSupply = 1000000000;
-    balances[msg.sender] = totalSupply;
+  uint public startDate;
+  uint public bonusEnds;
+  uint public normalPrice;
+  uint public bonusPrice;
+  uint public endDate;
+
+  function NETDay() public {
+    name = "Nkem Token";
+    symbol = "NKEM";
+    decimals = 18;
+    totalSupply = 0;
+
+    startDate = now;
+    bonusEnds = startDate + 1 years;
+    endDate = startDate + 2 years;
+
+    normalPrice = 100;
+    bonusPrice = 150;
   }
 
   /**
   If ether is sent to this address, send it back.
    */
   function () public payable {
-    revert();
+    require(now >= startDate && now <= endDate);
+    uint tokens;
+    if (now <= bonusEnds) {
+      tokens = msg.value * bonusPrice;
+    } else {
+      tokens = msg.value * normalPrice;
+    }
+    balances[msg.sender] += tokens;
+    totalSupply += tokens;
+    emit Transfer(address(0), msg.sender, tokens);
+    owner.transfer(msg.value);
   }
 
 }

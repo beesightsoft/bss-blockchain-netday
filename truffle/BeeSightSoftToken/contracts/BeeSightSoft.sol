@@ -4,7 +4,7 @@ pragma solidity >=0.5.0 <0.7.0;
 BeeSightSoft token
 
 Symbol          : BSS
-Name            : BeeSightSoft
+Name            : BeeSight Soft
 Total supply    : 1000000000
 Decimals        : 0
 
@@ -207,7 +207,7 @@ contract Token is ERC20Interface, Owned {
 contract BeeSightSoft is Token {
 
   constructor () public {
-    name = "BeeSight Soft2";
+    name = "BeeSight Soft";
     symbol = "BSS";
     decimals = 0;
     totalSupply = 1000000000;

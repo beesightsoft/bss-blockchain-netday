@@ -14,3 +14,7 @@ $ truffle deploy --network ropsten
 ```
 $ truffle migrate -f 2 --network ropsten
 ```
+
+## Init smart contract with web3
+
+- Compile smart contract with truffle 
