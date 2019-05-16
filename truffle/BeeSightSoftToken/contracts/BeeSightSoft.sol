@@ -207,7 +207,7 @@ contract Token is ERC20Interface, Owned {
 contract BeeSightSoft is Token {
 
   constructor () public {
-    name = "BeeSight Soft";
+    name = "BeeSight Soft2";
     symbol = "BSS";
     decimals = 0;
     totalSupply = 1000000000;
