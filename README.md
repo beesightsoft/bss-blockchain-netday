@@ -1,5 +1,8 @@
 # SmartContract
 
+### Voting application demo: 
+https://beesightsoft.github.io/bss-blockchain-netday/home/
+
 ## Articles
 
 - ERC20Token: https://medium.com/p/6e640eb613ff 
