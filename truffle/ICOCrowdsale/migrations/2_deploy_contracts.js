@@ -1,5 +1,5 @@
-const BeeSightSoft = artifacts.require("BeeSightSoft");
+const NETDay = artifacts.require("NETDay");
 
 module.exports = function(deployer) {
-  deployer.deploy(BeeSightSoft);
+  deployer.deploy(NETDay);
 };

@@ -4,7 +4,12 @@
 ### Setup
 https://codecalamity.com/truffle-going-from-ganache-to-testnet-ropsten/
 
-Create `.env` file from `.env.example`
+- Create new wallet in infura.io
+
+- Funding your wallet for deploying contract: https://faucet.ropsten.be/
+
+- Create `.env` file from `.env.example`
+
 
 ### Deploy
 ```

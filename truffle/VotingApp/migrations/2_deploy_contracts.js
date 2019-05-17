@@ -1,5 +1,5 @@
-const BeeSightSoft = artifacts.require("BeeSightSoft");
+const Voting = artifacts.require("Voting");
 
 module.exports = function(deployer) {
-  deployer.deploy(BeeSightSoft);
+  deployer.deploy(Voting);
 };

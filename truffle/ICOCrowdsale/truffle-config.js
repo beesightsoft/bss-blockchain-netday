@@ -2,8 +2,7 @@ require('dotenv').config()
 const HDWalletProvider = require('truffle-hdwallet-provider')
 const MNEMONIC=process.env.MNEMONIC
 const ROPSTEN_URL=process.env.ROPSTEN_URL
-console.log(MNEMONIC)
-console.log(ROPSTEN_URL)
+
 module.exports = {
   // Uncommenting the defaults below 
   // provides for an easier quick-start with Ganache.

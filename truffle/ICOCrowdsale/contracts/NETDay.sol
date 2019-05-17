@@ -3,22 +3,19 @@ pragma solidity >=0.5.0 <0.7.0;
 /**
 ICO CrowdSale token contract
 
-Abstract
-Start date      : Tuesday, March 27, 2018 5:31:11 PM GMT+07:00
-Bonus end date  : Wednesday, March 27, 2019 5:31:11 PM GMT+07:00
-End date        : Thursday, March 26, 2020 5:31:11 PM GMT+07:00
-Normal price    : 100 NKEM Tokens per 1 ETH
-Bonus price     : 150 NKEM Tokens per 1 ETH
+ABSTRACT
+Start date      : Friday, May 17, 2019 9:33:06 AM GMT+07:00
+Bonus end date  : Start date + 10 days
+End date        : Start date + 365 days
+Normal price    : 100 NETDay Tokens per 1 ETH
+Bonus price     : 150 NETDay Tokens per 1 ETH
 
-Contract address: https://ropsten.etherscan.io/address/0xbb3c7bf0b58e23ea2ff9567fcc7ef8235cfe49b7
-Token address   : https://ropsten.etherscan.io/token/0xbb3c7bf0b58e23ea2ff9567fcc7ef8235cfe49b7
-First transfer  : https://ropsten.etherscan.io/tx/0xbd59b2562c589bb2a3736b590f9c046237134a167e495e52c3776429178c5908
-Deployed at     : 0xbb3c7bf0b58e23ea2ff9567fcc7ef8235cfe49b7
-Symbol          : NKEM
-Name            : NKem Token
+TOKEN DETAIL
+Symbol          : NETDay
+Name            : NETDay Token
 Decimals        : 18
 
-@ nhancv MIT license
+@ beesightsoft MIT license
  */
 
 // ---------------------------------------------------------------------
@@ -78,12 +75,12 @@ contract ERC20Interface {
 Owned contract
  */
 contract Owned {
-  address public owner;
-  address public newOwner;
+  address payable public owner;
+  address payable public newOwner;
 
   event OwnershipTransferred(address indexed _from, address indexed _to);
 
-  function Owned() public {
+  constructor () public {
     owner = msg.sender;
   }
 
@@ -92,7 +89,7 @@ contract Owned {
     _;
   }
 
-  function transferOwnership(address _newOwner) public onlyOwner {
+  function transferOwnership(address payable _newOwner) public onlyOwner {
     newOwner = _newOwner;
   }
 
@@ -108,7 +105,7 @@ contract Owned {
 Function to receive approval and execute function in one call.
  */
 contract TokenRecipient { 
-  function receiveApproval(address _from, uint256 _value, address _token, bytes _extraData) public; 
+  function receiveApproval(address _from, uint256 _value, address _token, bytes memory _extraData) public; 
 }
 
 /**
@@ -116,14 +113,14 @@ Token implement
  */
 contract Token is ERC20Interface, Owned {
 
-  mapping (address => uint256) public balances;
-  mapping (address => mapping (address => uint256)) public allowed;
+  mapping (address => uint256) _balances;
+  mapping (address => mapping (address => uint256)) _allowed;
   
   // This notifies clients about the amount burnt
   event Burn(address indexed from, uint256 value);
   
   function balanceOf(address _owner) public view returns (uint256 balance) {
-    return balances[_owner];
+    return _balances[_owner];
   }
 
   function transfer(address _to, uint256 _value) public returns (bool success) {
@@ -132,20 +129,20 @@ contract Token is ERC20Interface, Owned {
   }
 
   function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
-    require(_value <= allowed[_from][msg.sender]); 
-    allowed[_from][msg.sender] -= _value;
+    require(_value <= _allowed[_from][msg.sender]); 
+    _allowed[_from][msg.sender] -= _value;
     _transfer(_from, _to, _value);
     return true;
   }
 
   function approve(address _spender, uint256 _value) public returns (bool success) {
-    allowed[msg.sender][_spender] = _value;
+    _allowed[msg.sender][_spender] = _value;
     emit Approval(msg.sender, _spender, _value);
     return true;
   }
 
   function allowance(address _owner, address _spender) public view returns (uint256 remaining) {
-    return allowed[_owner][_spender];
+    return _allowed[_owner][_spender];
   }
 
   /**
@@ -158,10 +155,10 @@ contract Token is ERC20Interface, Owned {
   /**
   Approves and then calls the receiving contract
    */
-  function approveAndCall(address _spender, uint256 _value, bytes _extraData) public returns (bool success) {
+  function approveAndCall(address _spender, uint256 _value, bytes memory _extraData) public returns (bool success) {
     TokenRecipient spender = TokenRecipient(_spender);
     approve(_spender, _value);
-    spender.receiveApproval(msg.sender, _value, this, _extraData);
+    spender.receiveApproval(msg.sender, _value, address(this), _extraData);
     return true;
   }
 
@@ -170,8 +167,8 @@ contract Token is ERC20Interface, Owned {
   Remove `_value` tokens from the system irreversibly
     */
   function burn(uint256 _value) public returns (bool success) {
-    require(balances[msg.sender] >= _value);
-    balances[msg.sender] -= _value;
+    require(_balances[msg.sender] >= _value);
+    _balances[msg.sender] -= _value;
     totalSupply -= _value;
     emit Burn(msg.sender, _value);
     return true;
@@ -182,10 +179,10 @@ contract Token is ERC20Interface, Owned {
   Remove `_value` tokens from the system irreversibly on behalf of `_from`.
     */
   function burnFrom(address _from, uint256 _value) public returns (bool success) {
-    require(balances[_from] >= _value);
-    require(_value <= allowed[_from][msg.sender]);
-    balances[_from] -= _value;
-    allowed[_from][msg.sender] -= _value;
+    require(_balances[_from] >= _value);
+    require(_value <= _allowed[_from][msg.sender]);
+    _balances[_from] -= _value;
+    _allowed[_from][msg.sender] -= _value;
     totalSupply -= _value;
     emit Burn(_from, _value);
     return true;
@@ -196,20 +193,20 @@ contract Token is ERC20Interface, Owned {
     */
   function _transfer(address _from, address _to, uint _value) internal {
     // Prevent transfer to 0x0 address. Use burn() instead
-    require(_to != 0x0);
+    require(_to != address(0x0));
     // Check if the sender has enough
-    require(balances[_from] >= _value);
+    require(_balances[_from] >= _value);
     // Check for overflows
-    require(balances[_to] + _value > balances[_to]);
+    require(_balances[_to] + _value > _balances[_to]);
     // Save this for an assertion in the future
-    uint previousBalances = balances[_from] + balances[_to];
+    uint previousBalances = _balances[_from] + _balances[_to];
     // Subtract from the sender
-    balances[_from] -= _value;
+    _balances[_from] -= _value;
     // Add the same to the recipient
-    balances[_to] += _value;
+    _balances[_to] += _value;
     emit Transfer(_from, _to, _value);
     // Asserts are used to use static analysis to find bugs in your code. They should never fail
-    assert(balances[_from] + balances[_to] == previousBalances);
+    assert(_balances[_from] + _balances[_to] == previousBalances);
   }
 
 }
@@ -222,15 +219,16 @@ contract NETDay is Token {
   uint public bonusPrice;
   uint public endDate;
 
-  function NETDay() public {
-    name = "Nkem Token";
-    symbol = "NKEM";
+  constructor () public {
+    name = "NETDay Token";
+    symbol = "NETDay";
+    // 1ETH = 1e18 wei
     decimals = 18;
     totalSupply = 0;
 
-    startDate = now;
-    bonusEnds = startDate + 1 years;
-    endDate = startDate + 2 years;
+    startDate = 1558060386;
+    bonusEnds = startDate + 10 days;
+    endDate = startDate + 365 days;
 
     normalPrice = 100;
     bonusPrice = 150;
@@ -239,7 +237,7 @@ contract NETDay is Token {
   /**
   If ether is sent to this address, send it back.
    */
-  function () public payable {
+  function () external payable {
     require(now >= startDate && now <= endDate);
     uint tokens;
     if (now <= bonusEnds) {
@@ -247,9 +245,9 @@ contract NETDay is Token {
     } else {
       tokens = msg.value * normalPrice;
     }
-    balances[msg.sender] += tokens;
+    _balances[msg.sender] += tokens;
     totalSupply += tokens;
-    emit Transfer(address(0), msg.sender, tokens);
+    emit Transfer(owner, msg.sender, tokens);
     owner.transfer(msg.value);
   }
 
