@@ -30,7 +30,7 @@ Total supply              : 1000000000
 Decimals                  : 0
 ```
 
-## ICO CrowdSale token contract
+## ICO CrowdSale
 ```
 ACCOUNT CREATOR (infura.io): https://ropsten.etherscan.io/address/0x3418e633b76128f7bdd1ce8e9743e981644d4d7b
 
